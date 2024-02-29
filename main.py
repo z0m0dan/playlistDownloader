@@ -11,4 +11,7 @@ parser.add_argument('-d', '--directory',
                     help='The directory to download the videos to', default='The name of the playlist', required=False)
 
 args = parser.parse_args()
-print(args)
+
+if __name__ == "__main__":
+    playlistDownloader(args.url, args.verbose, args.directory)
+
