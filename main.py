@@ -1,17 +1,21 @@
-import argparse
-from playlistDownloader import playlistDownloader
+# read from console
+import typer
+from typing_extensions import Annotated
+from typing import Optional
+from functions import downloadVideo, isPlaylist, downloadPlaylist, isRequirementsFullfilled
 
-parser = argparse.ArgumentParser(description='Playlist downloader, downloads all videos from a youtube playlist',
-                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter, usage='%(prog)s [-u URL]')
-parser.add_argument(
-    '-u', '--url', help='The url of the playlist to download', required=True)
-parser.add_argument(
-    '-v', '--verbose', help='Show all the information of the downloaded videos', action='store_true', required=False)
-parser.add_argument('-d', '--directory',
-                    help='The directory to download the videos to', default='The name of the playlist', required=False)
 
-args = parser.parse_args()
+def main(url: Annotated[str, typer.Argument()], output: Annotated[Optional[str], typer.Argument()] = "videos", installDeps: Annotated[Optional[str], typer.Option("--install-deps")] = None):
+    if isRequirementsFullfilled() == False:
+        return
+    if (installDeps):
+        print("Installing ffmpeg")
+        return
+    if isPlaylist(url):
+        downloadPlaylist(url, output)
+    else:
+        downloadVideo(url, output)
+
 
 if __name__ == "__main__":
-    playlistDownloader(args.url, args.verbose, args.directory)
-
+    typer.run(main)
