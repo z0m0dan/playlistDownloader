@@ -1,10 +1,10 @@
-from pytube import YouTube, Playlist
-from pytube.exceptions import VideoUnavailable
+from pytubefix import YouTube, Playlist, Channel
+from pytubefix.exceptions import VideoUnavailable
 import os
 import subprocess
 
 
-def downloadPlaylist(url, directory="videos"):
+def downloadPlaylist(url, directory=None):
     playlist = Playlist(url)
     print(f"Downloading {playlist.title} playlist")
     for video in playlist.video_urls:
@@ -12,10 +12,32 @@ def downloadPlaylist(url, directory="videos"):
 
 
 def isPlaylist(url) -> bool:
-    return "playlist" or "list" in url
+    return "playlist" in url or "list" in url
+
+def getUserChannelVideos(url):
+    try: 
+     channel = Channel(url)
+    except:
+        print("Error getting channel")
+        return ([], None)
+    return (channel.video_urls, channel)
+
+def downloadChannelVideos(url, directory=None):
+    if directory == None: 
+        directory="videos"
+    (videos, channel) = getUserChannelVideos(url)
+    if channel == None:
+        return
+    print(f"Downloading {channel.channel_name} channel, total downloads: {len(videos)}")
+    for video in videos:
+        print(f"Downloading: {video}")
+        downloadVideo(video, directory)
 
 
-def downloadVideo(video,  directory="videos"):
+def downloadVideo(video,  directory=None):
+    if directory == None: 
+        directory="videos"
+    
     try:
         file_path = os.path.join(os.getcwd(), directory)
         if not os.path.exists(file_path):
@@ -26,7 +48,7 @@ def downloadVideo(video,  directory="videos"):
         print("Error downloading: " + video)
         return
     else:
-        yt.streams.filter(only_audio=True).first().download(
+        yt.streams.first().download(
             output_path=file_path)
     return video.title
 
